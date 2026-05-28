@@ -1,0 +1,64 @@
+import pandas as pd
+import streamlit as st
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+st.set_page_config(page_title="스팸 분류기 AI", page_icon="🚨", layout="centered")
+
+# 타이틀 및 제작자 각인 영역
+st.title("🚨 AI 스팸 메시지 분류기")
+st.caption(" **Made by 김현우** | 나이브 베이즈 알고리즘 기반 실시간 스팸 판별 프로그램")
+st.markdown("---")
+
+data = {
+    'text': [
+        '안녕하세요, 오늘 회의 일정 확인 부탁드립니다.',
+        '당첨! 무료 쿠폰을 지금 바로 받아가세요!!!',
+        '주말에 시간 되시면 같이 저녁 먹을래요?',
+        'ㅅr과티ㅂl ㄹㅇ 실화냐?',
+        '최저가 보장! 지금 구매하시면 50% 할인 혜택',
+        '팀장님, 요청하신 보고서 송부드립니다.',
+        '광고) 비밀 보장 급전 필요하신 분 대출 가능',
+        '인 스 타에 "여 배우S양" 쳐봐 핸드폰 해킹됐다는 소문 돌던데 인스타에 영 상 올라와 있음.'
+    ],
+    'label': [0, 1, 0, 1, 1, 0, 1, 1]
+}
+
+df = pd.DataFrame(data)
+
+vectorizer = CountVectorizer()
+X_train_vectorized = vectorizer.fit_transform(df['text'])
+
+model = MultinomialNB()
+model.fit(X_train_vectorized, df['label'])
+
+st.sidebar.header("📊 학습 데이터 현황")
+st.sidebar.dataframe(df, use_container_width=True)
+st.sidebar.caption(f"총 {len(df)}개의 문장으로 알고리즘이 학습되었습니다.")
+
+st.subheader("📝 메시지 분석하기")
+user_input = st.text_area(
+    "분석하고 싶은 메시지나 댓글을 입력한 후 아래 버튼을 클릭하세요.",
+    placeholder="여기에 내용을 입력하세요...",
+    height=120
+)
+
+if st.button("🔮 실시간 스팸 분석 시작", type="primary"):
+    if user_input.strip():
+        new_msg_vectorized = vectorizer.transform([user_input])
+        prediction = model.predict(new_msg_vectorized)
+        
+        probabilities = model.predict_proba(new_msg_vectorized)[0]
+        spam_prob = probabilities[1] * 100
+        ham_prob = probabilities[0] * 100
+        
+        st.markdown("### 📊 분석 결과")
+        
+        if prediction[0] == 1:
+            st.error(f"🚨 **스팸 메시지입니다.** (스팸 확률: {spam_prob:.1f}%)")
+        else:
+            st.success(f"✅ **정상 메시지입니다.** (정상 확률: {ham_prob:.1f}%)")
+            st.balloons()
+            
+    else:
+        st.warning("내용을 입력해 주세요!")

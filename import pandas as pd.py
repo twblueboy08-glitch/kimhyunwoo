@@ -7,7 +7,7 @@ st.set_page_config(page_title="스팸 분류기 AI", page_icon="🚨", layout="c
 
 # 타이틀 및 제작자 각인 영역
 st.title("🚨 AI 스팸 메시지 분류기")
-st.caption(" **Made by 김현우** | 나이브 베이즈 알고리즘 기반 실시간 스팸 판별 프로그램")
+st.caption(" **Made by 김현우** | 나이브 베이지안 알고리즘 기반 실시간 스팸 판별 프로그램")
 st.markdown("---")
 
 data = {
